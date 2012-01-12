@@ -8,4 +8,19 @@
 // ==/UserScript==
 ###
 
-console.log('BigPond Downloader loaded.')
+String::startsWith = (substring) ->
+  regex = new RegExp("^#{substring}")
+  regex.test(@)
+
+downloadBpd = (bpdHref) ->
+  console.log("Downloading BigPond Downloader package at #{bpdHref}")
+
+console.log 'BigPond Downloader loaded.'
+$('a').map (num, link) =>
+  href = link.attr('href')
+  if href.startsWith('bpd')
+    downloadBpd(href)
+  else
+    console.log("Skipping #{href}.")
+
+
