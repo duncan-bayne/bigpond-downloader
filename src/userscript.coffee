@@ -1,1 +1,1 @@
-BigPondDownloader.new().run()
+new BigPondDownloader().run()

@@ -1,9 +1,3 @@
-// ==UserScript==
-// @name BigPond Downloader
-// @namespace https://github.com/duncan-bayne/bigpond-downloader
-// @description A user script to allow easy downloads of BigPond Music tracks on operating systems other than MS Windows.
-// @include http://*/downloads.html
-// ==/UserScript==
 /*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
@@ -9270,39 +9264,3 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
 
 })( window );
-(function() {
-  var BigPondDownloader;
-
-  BigPondDownloader = (function() {
-
-    function BigPondDownloader() {
-      console.log('BigPond Downloader loaded.');
-    }
-
-    BigPondDownloader.prototype.run = function() {
-      var _this = this;
-      console.log('BigPondDownloader.run(): Running.');
-      return $.map($('a'), function(a) {
-        var href;
-        href = $(a).attr('href');
-        if (_this._startsWith(href, 'bpd')) return _this._downloadBpd(href);
-      });
-    };
-
-    BigPondDownloader.prototype._downloadBpd = function(bpdHref) {
-      return console.log("Downloading BigPond Downloader package at " + bpdHref);
-    };
-
-    BigPondDownloader.prototype._startsWith = function(string, token) {
-      var regex;
-      regex = new RegExp("^" + token);
-      return regex.test(string);
-    };
-
-    return BigPondDownloader;
-
-  })();
-
-  new BigPondDownloader().run();
-
-}).call(this);
