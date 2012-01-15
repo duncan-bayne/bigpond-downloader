@@ -1,0 +1,11 @@
+src_dir: 'src'
+
+src_files:
+  - 'jquery.js'
+  - 'namespace.coffee'
+  - 'bigpond_downloader.coffee'
+
+spec_dir: 'spec/javascripts'
+
+spec_files:
+  - '*.coffee'

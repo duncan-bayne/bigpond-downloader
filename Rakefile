@@ -3,6 +3,7 @@
 @out_dir = "userscript"
 
 @src = [
+  "#{@src_dir}/namespace.coffee",
   "#{@src_dir}/bigpond_downloader.coffee",
   "#{@src_dir}/userscript.coffee"
 ]

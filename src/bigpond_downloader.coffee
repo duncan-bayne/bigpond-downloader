@@ -1,4 +1,5 @@
-class BigPondDownloader
+"use strict"
+class BPD.BigPondDownloader
 
   constructor: ->
     console.log('BigPond Downloader loaded.')
