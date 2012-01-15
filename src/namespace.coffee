@@ -1,2 +1,2 @@
 "use strict"
-window.BPD = {}
+window.Bpd = {}

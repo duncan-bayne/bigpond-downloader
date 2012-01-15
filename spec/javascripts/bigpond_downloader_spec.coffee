@@ -1,4 +1,4 @@
 describe 'BigPond Downloader', ->
 
   beforeEach ->
-    @downloader = new BPD.BigPondDownloader()
+    @downloader = new Bpd.BigPondDownloader()

@@ -1,2 +1,2 @@
 "use strict"
-new BigPondDownloader().run()
+new Bpd.BigPondDownloader().run()
