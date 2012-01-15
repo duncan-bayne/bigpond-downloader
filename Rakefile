@@ -4,6 +4,8 @@
 
 @src = [
   "#{@src_dir}/namespace.coffee",
+  "#{@src_dir}/bpd_file.coffee",
+  "#{@src_dir}/music_archive.coffee",
   "#{@src_dir}/bigpond_downloader.coffee",
   "#{@src_dir}/userscript.coffee"
 ]
@@ -23,4 +25,8 @@ task :build do
   system "cat #{@manifest} #{@jquery} #{@output} > #{@userscript}" or throw "Failed to generate the Userscript."
 end
 
-task :default => [ :clean, :build ]
+task :test do
+  system "jasmine-headless-webkit"
+end
+
+task :default => [ :clean, :build, :test ]

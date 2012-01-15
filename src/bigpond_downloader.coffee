@@ -1,20 +1,17 @@
 "use strict"
 class Bpd.BigPondDownloader
 
-  constructor: ->
-    console.log('BigPond Downloader loaded.')
-
   run: ->
-    console.log('BigPondDownloader.run(): Running.')
+    bpdFiles = []
     $.map(
       $('a'),
       (a) =>
         href = $(a).attr('href')
         if @_startsWith(href, 'bpd')
-          @_downloadBpd(href))
+          bpdFiles.push(new Bpd.BpdFile(href)))
 
-  _downloadBpd: (bpdHref) ->
-    console.log("Downloading BigPond Downloader package at #{bpdHref}")
+    musicArchive = new Bpd.MusicArchive(bpdFiles)
+    musicArchive.download()
 
   _startsWith: (string, token) ->
     regex = new RegExp("^#{token}")
