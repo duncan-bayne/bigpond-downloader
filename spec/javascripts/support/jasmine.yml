@@ -10,4 +10,6 @@ src_files:
 spec_dir: 'spec/javascripts'
 
 spec_files:
-  - '*.coffee'
+  - 'bigpond_downloader_spec.coffee'
+  - 'bpd_file_spec.coffee'
+
