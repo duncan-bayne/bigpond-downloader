@@ -20,13 +20,17 @@ describe 'BigPond Downloader file', ->
 
   describe 'downloading', ->
 
-    # it 'throws an exception when passed a null success callback', ->
-    #
-    # it 'throws an exception when passed an undefined success callback', ->
-    #
-    # it 'throws an exception when passed a null error callback', ->
-    #
-    # it 'throws an exception when passed an undefined error callback', ->
+    it 'throws an exception when passed a null success callback', ->
+      expect(=> @bpdFile.download(null, @error)).toThrow('You must pass a success callback when downloading a BpdFile.')
+
+    it 'throws an exception when passed an undefined success callback', ->
+      expect(=> @bpdFile.download(undefined, @error)).toThrow('You must pass a success callback when downloading a BpdFile.')
+
+    it 'throws an exception when passed a null error callback', ->
+      expect(=> @bpdFile.download(@success, null)).toThrow('You must pass an error callback when downloading a BpdFile.')
+
+    it 'throws an exception when passed an undefined error callback', ->
+      expect(=> @bpdFile.download(@success, null)).toThrow('You must pass an error callback when downloading a BpdFile.')
 
     describe 'successfully', ->
 

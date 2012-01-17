@@ -7,12 +7,11 @@ class Bpd.BigPondDownloader
       $('a'),
       (a) =>
         href = $(a).attr('href')
-        if @_startsWith(href, 'bpd')
+        if @_startsWith(href, 'bpd://')
           bpdFiles.push(new Bpd.BpdFile(href)))
 
     musicArchive = new Bpd.MusicArchive(bpdFiles)
     musicArchive.download()
 
-  _startsWith: (string, token) ->
-    regex = new RegExp("^#{token}")
-    regex.test(string)
+  _startsWith: (str, token) ->
+    str.indexOf(token, 0) >= 0

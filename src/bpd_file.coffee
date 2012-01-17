@@ -6,6 +6,9 @@ class Bpd.BpdFile
     @_uri = unescape(escaped_uri)
 
   download: (onSuccess, onError) ->
+    throw 'You must pass a success callback when downloading a BpdFile.' if !onSuccess
+    throw 'You must pass an error callback when downloading a BpdFile.' if !onError
+
     @_successCb = onSuccess
     @_errorCb = onError
 
