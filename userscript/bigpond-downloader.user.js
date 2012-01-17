@@ -15,7 +15,66 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
 
   Bpd.BpdFile = (function() {
 
-    function BpdFile() {}
+    function BpdFile(escaped_uri) {
+      if (!escaped_uri) throw 'You must pass a URI when constructing a BpdFile.';
+      this._uri = unescape(escaped_uri);
+      this.mp3Uris = [];
+    }
+
+    BpdFile.prototype.download = function(onSuccess, onError) {
+      if (!onSuccess) {
+        throw 'You must pass a success callback when downloading a BpdFile.';
+      }
+      if (!onError) {
+        throw 'You must pass an error callback when downloading a BpdFile.';
+      }
+      this._successCb = onSuccess;
+      this._errorCb = onError;
+      return $.ajax(this._uri, {
+        success: function(body) {
+          return this._onSuccess(body);
+        },
+        error: function() {
+          return this._onError();
+        }
+      });
+    };
+
+    BpdFile.prototype._onSuccess = function(html) {
+      if (this._parseMp3Uris(html)) {
+        return this._successCb();
+      } else {
+        return this._errorCb();
+      }
+    };
+
+    BpdFile.prototype._onError = function() {
+      this.mp3Uris = [];
+      return this._errorCb();
+    };
+
+    BpdFile.prototype._parseMp3Uris = function(body) {
+      var line, lines, match, mp3Uris, parsed, version, _i, _len;
+      version = '';
+      mp3Uris = [];
+      parsed = false;
+      lines = body.split('\n');
+      for (_i = 0, _len = lines.length; _i < _len; _i++) {
+        line = lines[_i];
+        match = line.match(/FILE URL=(.*)/);
+        if (match != null ? match[1] : void 0) mp3Uris.push(unescape(match[1]));
+        match = line.match(/BPD VERSION=(.*)/);
+        if (match != null ? match[1] : void 0) version = match[1];
+      }
+      if (version === '1') {
+        parsed = true;
+        this.mp3Uris = mp3Uris;
+      } else {
+        parsed = false;
+        this.mp3Uris = [];
+      }
+      return parsed;
+    };
 
     return BpdFile;
 
@@ -46,7 +105,7 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
       $.map($('a'), function(a) {
         var href;
         href = $(a).attr('href');
-        if (_this._startsWith(href, 'bpd')) {
+        if (_this._startsWith(href, 'bpd://')) {
           return bpdFiles.push(new Bpd.BpdFile(href));
         }
       });
@@ -54,10 +113,8 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
       return musicArchive.download();
     };
 
-    BigPondDownloader.prototype._startsWith = function(string, token) {
-      var regex;
-      regex = new RegExp("^" + token);
-      return regex.test(string);
+    BigPondDownloader.prototype._startsWith = function(str, token) {
+      return str.indexOf(token, 0) >= 0;
     };
 
     return BigPondDownloader;
