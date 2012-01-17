@@ -4,6 +4,7 @@ class Bpd.BpdFile
   constructor: (escaped_uri) ->
     throw 'You must pass a URI when constructing a BpdFile.' if !escaped_uri
     @_uri = unescape(escaped_uri)
+    @mp3Uris = []
 
   download: (onSuccess, onError) ->
     throw 'You must pass a success callback when downloading a BpdFile.' if !onSuccess
@@ -13,16 +14,43 @@ class Bpd.BpdFile
     @_errorCb = onError
 
     $.ajax(@_uri,
-      success: (html) ->
-        @_onSuccess(html)
+      success: (body) ->
+        @_onSuccess(body)
       error: ->
         @_onError()
     )
 
   _onSuccess: (html) ->
-    @content = html
-    @_successCb()
+    if @_parseMp3Uris(html)
+      @_successCb()
+    else
+      @_errorCb()
 
   _onError: ->
-    @content = null
+    @mp3Uris = []
     @_errorCb()
+
+  _parseMp3Uris: (body) ->
+    version = ''
+    mp3Uris = []
+    parsed = false
+
+    lines = body.split('\n')
+    for line in lines
+
+      # MP3 URI
+      match = line.match(/FILE URL=(.*)/)
+      mp3Uris.push(unescape(match[1])) if match?[1]
+
+      # version number
+      match = line.match(/BPD VERSION=(.*)/)
+      version = match[1] if match?[1]
+
+    if version == '1'
+      parsed = true
+      @mp3Uris = mp3Uris
+    else
+      parsed = false
+      @mp3Uris = []
+
+    return parsed
