@@ -19,14 +19,15 @@ describe 'Music Archive', ->
         options.success()
 
       @archive = new Bpd.MusicArchive([@bpdFile])
+      spyOn(@archive, '_sendBase64Bytes').andCallFake(->)
+
       @archive.download()
 
     it 'downloads each MP3 file in turn', ->
       expect($.ajax.callCount).toBe(2)
 
     it 'creates a ZIP file containing all the MP3 files', ->
-
-    it 'makes a ZIP file available through Downloadify', ->
+      expect(@archive._sendBase64Bytes.callCount).toBe(1)
 
   describe 'downloading a list of empty BPD files', ->
 
@@ -36,6 +37,7 @@ describe 'Music Archive', ->
       }
       spyOn($, 'ajax')
       @archive = new Bpd.MusicArchive([@bpdFile])
+      spyOn(@archive, '_sendBase64Bytes').andCallFake(->)
       @archive.download()
 
     it 'downloads no MP3s', ->
@@ -43,13 +45,14 @@ describe 'Music Archive', ->
 
     it 'creates an empty ZIP file', ->
 
-    it 'makes a ZIP file available through Downloadify', ->
+    it 'makes a ZIP file available', ->
 
   describe 'downloading an empty list of BPD files', ->
 
     beforeEach ->
       spyOn($, 'ajax')
       @archive = new Bpd.MusicArchive([])
+      spyOn(@archive, '_sendBase64Bytes').andCallFake(->)
       @archive.download()
 
     it 'downloads no MP3s', ->
@@ -57,4 +60,4 @@ describe 'Music Archive', ->
 
     it 'creates an empty ZIP file', ->
 
-    it 'makes a ZIP file available through Downloadify', ->
+    it 'makes a ZIP file available', ->

@@ -12,6 +12,7 @@
 
 @manifest = "#{@src_dir}/manifest.js"
 @jquery = "#{@src_dir}/jquery.js"
+@jszip = "#{@src_dir}/jszip.js"
 @output = "#{@tmp_dir}/userscript.js"
 @userscript = "#{@out_dir}/bigpond-downloader.user.js"
 
@@ -22,7 +23,7 @@ end
 
 task :build do
   system "coffee --output #{@tmp_dir} --compile --join userscript.js #{@src.join(' ')}" or throw "Failed to compile CoffeeScript."
-  system "cat #{@manifest} #{@jquery} #{@output} > #{@userscript}" or throw "Failed to generate the Userscript."
+  system "cat #{@manifest} #{@jquery} #{@jszip} #{@output} > #{@userscript}" or throw "Failed to generate the Userscript."
 end
 
 task :test do
