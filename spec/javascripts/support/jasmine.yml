@@ -2,6 +2,7 @@ src_dir: 'src'
 
 src_files:
   - 'jquery.js'
+  - 'jszip.js'
   - 'namespace.coffee'
   - 'bpd_file.coffee'
   - 'music_archive.coffee'
