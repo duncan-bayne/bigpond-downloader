@@ -14,7 +14,9 @@ class Bpd.MusicArchive
   _downloadBpdFiles: (bpdFiles, onSuccess) ->
     bpdFile = bpdFiles.pop()
     if bpdFile
-      @_downloadBpdFile(bpdFile, => @_downloadBpdFiles(bpdFiles, onSuccess))
+      bpdFile.download(
+        => @_downloadBpdFile(bpdFile, => @_downloadBpdFiles(bpdFiles, onSuccess)),
+        =>)
     else
       onSuccess(@_zip.generate())
 
@@ -30,12 +32,20 @@ class Bpd.MusicArchive
       onSuccess()
 
   _downloadMp3File: (mp3Uri, onSuccess) ->
+    console.log("MusicArchive._downloadMp3File: downloading #{mp3Uri}")
     $.ajax(
       mp3Uri,
       success: (body) =>
-        @_zip.add(mp3Uri.split('/').last, body)
+        filename = @_mp3Filename(mp3Uri)
+        @_zip.add(filename, body)
+        console.log("MusicArchive._downloadMp3File: downloaded and ZIPped #{filename}")
         onSuccess()
+      error: ->
+        alert("#{mp3Uri} could not be downloaded.")
     )
 
   _sendBase64Bytes: (bytes) ->
     location.href = "data:application/zip;base64," + bytes
+
+  _mp3Filename: (mp3Uri) ->
+    mp3Uri.match(/.*\/(.*mp3)/)[1]

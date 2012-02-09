@@ -14,4 +14,4 @@ class Bpd.BigPondDownloader
     musicArchive.download()
 
   _startsWith: (str, token) ->
-    str.indexOf(token, 0) >= 0
+    str && str.indexOf(token, 0) >= 0

@@ -1,9 +1,9 @@
 "use strict"
 class Bpd.BpdFile
 
-  constructor: (escaped_uri) ->
-    throw 'You must pass a URI when constructing a BpdFile.' if !escaped_uri
-    @_uri = unescape(escaped_uri)
+  constructor: (escapedUri) ->
+    throw 'You must pass a URI when constructing a BpdFile.' if !escapedUri
+    @_uri = unescape(escapedUri).replace("bpd://", "http://")
     @mp3Uris = []
 
   download: (onSuccess, onError) ->
@@ -14,7 +14,7 @@ class Bpd.BpdFile
     @_errorCb = onError
 
     $.ajax(@_uri,
-      success: (body) ->
+      success: (body) =>
         @_onSuccess(body)
       error: ->
         @_onError()
