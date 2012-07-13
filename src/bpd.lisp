@@ -1,4 +1,4 @@
-;; bigpond-downloader - a downloader for Telstra Bigpond Music
+;; bigpond-downloader - a downloader for Telstra Bigpond 
 ;; Copyright (C) 2012 "Duncan Bayne" <dhgbayne@gmail.com>
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -26,10 +26,94 @@
 (ql:quickload '("drakma" 
 		"closure-html" 
 		"cxml-stp" 
-		"net-telent-date"))
+		"net-telent-date"
+		"cl-ppcre"
+		"do-urlencode"))
 
 (defun show-usage () 
   (format t "TODO~%"))
+
+(defun login (username password csrf-token)
+  "Logs in to www.bigpondmusic.com.au.  Returns a cookie-jar containing authentication details."
+  (let ((cookie-jar (make-instance 'drakma:cookie-jar)))
+    (drakma:http-request "https://bigpondmusic.com/Login/LoginFromNav"
+			 :method :post
+			 :parameters `(
+				       ("usernameNav" . ,username) 
+				       ("passwordNav" . ,password)
+				       ("__AntiCSRFToken" . ,csrf-token)
+				       ("Log In.x" . "33")
+				       ("Log In.y" . "24")
+				       ("remember" . "false")
+				       ("parentUrl" . "http://bigpondmusic.com/")
+				       ("CheckUrl" . "https://bigpondmusic.com/Login/CheckSplit"))
+			 :cookie-jar cookie-jar)
+    cookie-jar))
+
+(defun get-bpd-uri (cookie-jar)
+  "Loads the login page and extracts the BPD URI."
+  (let* ((body (drakma:http-request "http://bigpondmusic.com/my/downloads" :cookie-jar cookie-jar))
+	 (valid-xhtml (chtml:parse body (cxml:make-string-sink)))
+	 (xhtml-tree (chtml:parse valid-xhtml (cxml-stp:make-builder))))
+    (xpath:with-namespaces ((nil "http://www.w3.org/1999/xhtml"))
+			   (xpath:string-value (xpath:evaluate "//a[contains(@href, 'bpd://bigpondmusic.com/DownloaderData.aspx?MediaIds=waiting')]/@href" xhtml-tree)))))
+
+(defun get-bpd-file (bpd-uri cookie-jar)
+  "Retrieves a BPD file, assuming UTF-8 encoding."
+  (let ((http-uri (cl-ppcre:regex-replace-all "^bpd" bpd-uri "http")))
+    (let ((body (drakma:http-request http-uri :cookie-jar cookie-jar)))
+      (let ((utf8-body (flexi-streams:octets-to-string body :external-format :utf-8)))
+	utf8-body))))
+
+(defun get-encoded-mp3-uris (bpd-file)
+  "Extracts the individual encoded MP3 URIs from the contents of a BPD file."
+  (let ((scanner (cl-ppcre:create-scanner "^FILE URL.*" :multi-line-mode t)))
+    (cl-ppcre:all-matches-as-strings scanner bpd-file)))
+
+(defun unmunge-uri (uri)
+  "Fixes a BPD-munged URI into something that do-urlencode can understand."
+  (let ((unmunged-uri (replace-all 
+		       (replace-all 
+			(replace-all 
+			 (replace-all 
+			  (replace-all 
+			   (replace-all uri "=" "%3d") 
+			   "&" "%26") 
+			  "+" "%20") 
+			 "FILE URL=" "") 
+			")" "%29") 
+		       "(" "%28")))
+    unmunged-uri))
+
+(defun decode-uri (mp3-uri)
+  "Strips the 'FILE URL=' prefix from an encoded URL, then decodes it."
+  (do-urlencode:urldecode (unmunge-uri mp3-uri)))
+
+(defun decode-uris (mp3-uris)
+  "Decodes a list of MP3 URIs"
+  (mapcar #'decode-uri mp3-uris))
+
+(defun get-csrf-token ()
+  "Loads the login page and extracts the anti-CSRF token for subsequent use during login."
+  (let* ((body (drakma:http-request "http://bigpondmusic.com/"))
+	 (valid-xhtml (chtml:parse body (cxml:make-string-sink)))
+	 (xhtml-tree (chtml:parse valid-xhtml (cxml-stp:make-builder))))
+    (xpath:with-namespaces ((nil "http://www.w3.org/1999/xhtml"))
+			   (xpath:string-value (xpath:evaluate "//input[@name='__AntiCSRFToken']/@value" xhtml-tree)))))
+
+(defun replace-all (string part replacement &key (test #'char=))
+  "Returns a new string in which all the occurences of the part is replaced with replacement."
+  (with-output-to-string (out)
+			 (loop with part-length = (length part)
+			       for old-pos = 0 then (+ pos part-length)
+			       for pos = (search part string
+						 :start2 old-pos
+						 :test test)
+			       do (write-string string out
+						:start old-pos
+						:end (or pos (length string)))
+			       when pos do (write-string replacement out)
+			       while pos)))
 
 (defun main (args)
   "The entry point for the application when compiled with buildapp."
