@@ -70,24 +70,17 @@
   (let ((scanner (cl-ppcre:create-scanner "^FILE URL.*" :multi-line-mode t)))
     (cl-ppcre:all-matches-as-strings scanner bpd-file)))
 
-(defun unmunge-uri (uri)
-  "Fixes a BPD-munged URI into something that do-urlencode can understand."
-  (let ((unmunged-uri (replace-all 
-		       (replace-all 
-			(replace-all 
-			 (replace-all 
+(defun decode-uri (encoded-mp3-uri)
+  "Decodes a URI from the format peculiar to BPD files"
+  (cl-ppcre:regex-replace "&PATH.*" 
 			  (replace-all 
-			   (replace-all uri "=" "%3d") 
-			   "&" "%26") 
-			  "+" "%20") 
-			 "FILE URL=" "") 
-			")" "%29") 
-		       "(" "%28")))
-    unmunged-uri))
-
-(defun decode-uri (mp3-uri)
-  "Strips the 'FILE URL=' prefix from an encoded URL, then decodes it."
-  (do-urlencode:urldecode (unmunge-uri mp3-uri)))
+			   (replace-all 
+			    (replace-all
+			     (replace-all encoded-mp3-uri "FILE URL=" "")
+			     "http%3a%2f%2fbigpondmusic.com%2fMarkAsDownloaded.aspx%3f" "http://bigpondmusic.com/MarkAsDownloaded.aspx?")
+			    "%26" "&")
+			   "%3d" "=")
+  ""))
 
 (defun decode-uris (mp3-uris)
   "Decodes a list of MP3 URIs"
