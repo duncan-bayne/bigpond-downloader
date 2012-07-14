@@ -122,10 +122,20 @@
 			       when pos do (write-string replacement out)
 			       while pos)))
 
+(defun download-music (username password)
+  "Downloads all recently purchased Telstra Bigpond Music for the specified user."
+  (let* ((token (get-csrf-token))
+	 (cookie-jar (login username password token))
+	 (bpd-uri (get-bpd-uri cookie-jar))
+	 (bpd-file (get-bpd-file bpd-uri cookie-jar))
+	 (encoded-uris (get-encoded-mp3-uris bpd-file))
+	 (decoded-uris (decode-uris encoded-uris)))
+    (mapcar #'print decoded-uris)))
+
 (defun main (args)
   "The entry point for the application when compiled with buildapp."
   (if (= (length args) 3)
-      (let ((username (nth 1 args))
-	    (password (nth 2 args))
-	    (format t "TODO~%")))
+      (let* ((username (nth 1 args))
+	     (password (nth 2 args)))
+	(download-music username password))
     (show-usage)))
