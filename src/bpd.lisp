@@ -1,4 +1,4 @@
-;; bigpond-downloader - a downloader for Telstra Bigpond 
+;; bigpond-downloader - a downloader for Telstra Bigpond Music
 ;; Copyright (C) 2012 "Duncan Bayne" <dhgbayne@gmail.com>
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -28,10 +28,24 @@
 		"cxml-stp" 
 		"net-telent-date"
 		"cl-ppcre"
-		"do-urlencode"))
+		"do-urlencode"
+		"getopt"))
 
 (defun show-usage () 
-  (format t "TODO~%"))
+  (format t "bigpond-downloader - a downloader for Telstra Bigpond Music.~%")
+  (format t "Copyright (C) 2012 \"Duncan Bayne\" <dhgbayne@gmail.com>~%~%")
+  (format t "This program is distributed in the hope that it will be useful,~%")
+  (format t "but WITHOUT ANY WARRANTY; without even the implied warranty of~%")
+  (format t "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the~%")
+  (format t "GNU Lesser General Public License for more details.~%~%")
+  (format t "Usage: bpd USERNAME PASSWORD~%~%")
+  (format t "  USERNAME  Your Telstra Bigpond Music username~%")
+  (format t "  PASSWORD  Your Telstra Bigpond Music password~%")
+  (format t "Example:~%~%")
+  (format t "  bpd bob@example.com b0bsp4ss!~%~%")
+  (format t "This will log into the Telstra Bigpond Music site with the username~%")
+  (format t "'bob@example.com' and the password 'b0bsp4ss!'.  It will then~%")
+  (format t "download all newly purchased music into the current directory.~%"))
 
 (defun login (username password csrf-token)
   "Logs in to www.bigpondmusic.com.au.  Returns a cookie-jar containing authentication details."
@@ -80,7 +94,7 @@
 			     "http%3a%2f%2fbigpondmusic.com%2fMarkAsDownloaded.aspx%3f" "http://bigpondmusic.com/MarkAsDownloaded.aspx?")
 			    "%26" "&")
 			   "%3d" "=")
-  ""))
+			  ""))
 
 (defun decode-uris (mp3-uris)
   "Decodes a list of MP3 URIs"
@@ -110,5 +124,8 @@
 
 (defun main (args)
   "The entry point for the application when compiled with buildapp."
-  (show-usage))
-
+  (if (= (length args) 3)
+      (let ((username (nth 1 args))
+	    (password (nth 2 args))
+	    (format t "TODO~%")))
+    (show-usage)))
