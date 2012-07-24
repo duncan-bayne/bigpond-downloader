@@ -58,7 +58,7 @@
 				       ("__AntiCSRFToken" . ,csrf-token)
 				       ("Log In.x" . "33")
 				       ("Log In.y" . "24")
-				       ("remember" . "false")
+				       ("remember" . "true")
 				       ("parentUrl" . "http://bigpondmusic.com/")
 				       ("CheckUrl" . "https://bigpondmusic.com/Login/CheckSplit"))
 			 :cookie-jar cookie-jar)
@@ -86,7 +86,7 @@
 
 (defun decode-uri (encoded-mp3-uri)
   "Decodes a URI from the format peculiar to BPD files"
-  (cl-ppcre:regex-replace "&PATH.*" 
+  (cl-ppcre:regex-replace "&PATH.*"
 			  (replace-all 
 			   (replace-all 
 			    (replace-all
@@ -122,6 +122,11 @@
 			       when pos do (write-string replacement out)
 			       while pos)))
 
+(defun download-mp3 (uri cookie-jar)
+  "Downloads an MP3 file from a specified URI."
+  (with-open-file (stream "music.mp3" :direction :output)
+		  (format stream (drakma:http-request uri :cookie-jar cookie-jar))))
+
 (defun download-music (username password)
   "Downloads all recently purchased Telstra Bigpond Music for the specified user."
   (let* ((token (get-csrf-token))
@@ -130,7 +135,7 @@
 	 (bpd-file (get-bpd-file bpd-uri cookie-jar))
 	 (encoded-uris (get-encoded-mp3-uris bpd-file))
 	 (decoded-uris (decode-uris encoded-uris)))
-    (mapcar #'print decoded-uris)))
+    (download-mp3 (car decoded-uris) cookie-jar)))
 
 (defun main (args)
   "The entry point for the application when compiled with buildapp."
