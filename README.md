@@ -1,4 +1,4 @@
-## bigpond-downloaded is no longer under active development; I've moved to Spotify instead.  Please contact me if you'd like to take ownership of the repo.
+#### bigpond-downloaded is no longer under active development; I've moved to Spotify instead.  Please contact me if you'd like to take ownership of the repo.
 
 This is an 'unofficial' downloader for BigPond Music.
 
